@@ -1,0 +1,22 @@
+{
+  "name": "mw-charity-2020",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ myronrotter/mw-charity-2020",
+    "create-local": "graph create --node http://localhost:8020/ myronrotter/mw-charity-2020",
+    "remove-local": "graph remove --node http://localhost:8020/ myronrotter/mw-charity-2020",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 myronrotter/mw-charity-2020"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.20.0",
+    "@graphprotocol/graph-ts": "0.20.0",
+    "@openzeppelin/contracts": "^3.2.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "truffle": "^5.3.4",
+    "truffle-contract": "^4.0.31",
+    "truffle-hdwallet-provider": "^1.0.17"
+  }
+}

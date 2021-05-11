@@ -1,0 +1,8 @@
+type TransferMWC @entity {
+  id: ID!
+  from: String!
+  to: String!
+  tokens: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}

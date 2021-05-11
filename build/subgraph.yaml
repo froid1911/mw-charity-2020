@@ -1,0 +1,25 @@
+specVersion: 0.0.2
+description: MaibornWolff Charity 2020
+repository: https://github.com/myronrotter/mw-charity-2020
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: MwdaoCharity2020
+    network: mainnet
+    source:
+      address: "0xdd98ec6B324F8EB0A14674eA0e98b5CEedfF6994"
+      abi: MwdaoCharity2020
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - TransferMWC
+      abis:
+        - name: MwdaoCharity2020
+          file: MwdaoCharity2020/abis/MwdaoCharity2020.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: MwdaoCharity2020/MwdaoCharity2020.wasm

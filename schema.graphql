@@ -1,0 +1,44 @@
+type MwDaoMember @entity {
+  id: ID! # address
+  mwDaoId: BigInt!
+  tokensMwg: BigInt!
+  mintMwc: MintMwc
+  transfersMwc: [TransferMwc!]
+  tokensMwc: BigInt
+}
+
+type Charity @entity {
+  id: ID! # address
+  tokensMwc: BigInt!
+}
+
+type TransferMwc @entity {
+  id: ID! # `${timestamp}-${from.id}-${to.id}`
+  from: String! # Transfers of mwc except of mints, i.e. transfers from `address(0)`
+  to: String!
+  tokensMwc: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type MintMwc @entity {
+  id: ID! # `${timestamp}-${minter}`
+  timestamp: BigInt
+  minter: String!
+  minted: Boolean!
+  tokensMwc: BigInt
+}
+
+type DailyDonation @entity {
+  id: ID! # `${YYYY-(M)M-(D)D}`
+  transfersMwc: [TransferMwc]!
+  tokensMwc: BigInt!
+  charityDonations: [CharityDonation]!
+}
+
+type CharityDonation @entity {
+  id: ID! # `${YYYY-(M)M-(D)D}-${charity.id}`
+  charity: Charity!
+  transfersMwc: [TransferMwc]!
+  tokensMwc: BigInt!
+}
