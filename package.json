@@ -15,6 +15,7 @@
     "@openzeppelin/contracts": "^3.2.0",
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
+    "node-fetch": "^2.6.1",
     "truffle": "^5.3.4",
     "truffle-contract": "^4.0.31",
     "truffle-hdwallet-provider": "^1.0.17"

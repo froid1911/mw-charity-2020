@@ -1,6 +1,6 @@
 import { BigInt, Address, log } from '@graphprotocol/graph-ts';
 import { Transfer, TokensMinted } from '../generated/MwdaoCharity2020/MwdaoCharity2020';
-import { TransferMwc, MintMwc, Charity, DailyDonation, CharityDonation, MwDaoMember } from '../generated/schema';
+import { TransferMwc, MintMwc, Charity, CharityDailyDonationMwc, MwDaoMember } from '../generated/schema';
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const BIG_INT_ZERO = BigInt.fromI32(0);
@@ -15,61 +15,40 @@ export function handleTransfer(event: Transfer): void {
   let id = timestamp.toString() + "-" + event.transaction.hash.toHex() + "-" + from + "-" + to;
 
   if (from != ZERO_ADDRESS) {
-    let transferMwc = new TransferMwc(id);
-    transferMwc.from = from;
-    transferMwc.to = to;
-    transferMwc.tokensMwc = amountMwc;
-    transferMwc.timestamp = timestamp;
-    transferMwc.blockNumber = blockNumber;
-    transferMwc.save();
-
+    
     let mwDaoMember = MwDaoMember.load(from);
     if (mwDaoMember != null) {
-      mwDaoMember.transfersMwc.push(transferMwc.id);
       mwDaoMember.tokensMwc = mwDaoMember.tokensMwc.minus(amountMwc);
       mwDaoMember.save();
 
-      let toMwDaoMember = MwDaoMember.load(to);
-      if (toMwDaoMember != null) {
-        toMwDaoMember.tokensMwc = toMwDaoMember.tokensMwc.plus(amountMwc);
-        toMwDaoMember.save();
-      } else {
-        let charity = Charity.load(to);
+      let charity = Charity.load(to);
         if (charity == null) {
           charity = new Charity(to);
           charity.tokensMwc = BIG_INT_ZERO;
         }
-        charity.tokensMwc = charity.tokensMwc.plus(amountMwc);
+      charity.tokensMwc = charity.tokensMwc.plus(amountMwc);
+      charity.save();
 
-        log.debug("fromUnixToDate(timestamp.toI32()): {}", [fromUnixToDate(timestamp.toI32())]);
-        let dailyDonationId = fromUnixToDate(timestamp.toI32());
-        let dailyDonation = DailyDonation.load(dailyDonationId);
-        if (dailyDonation == null) {
-          dailyDonation = new DailyDonation(dailyDonationId);
-          dailyDonation.tokensMwc = BIG_INT_ZERO;
-          dailyDonation.transfersMwc = [];
-          dailyDonation.charityDonations = [];
-        }
-        dailyDonation.transfersMwc.push(transferMwc.id);
-        dailyDonation.tokensMwc = dailyDonation.tokensMwc.plus(amountMwc);
-
-        let charityDonationId = dailyDonationId + "-" + charity.id;
-        let charityDonation = CharityDonation.load(charityDonationId);
-        if (charityDonation == null) {
-          charityDonation = new CharityDonation(charityDonationId);
-          charityDonation.tokensMwc = BIG_INT_ZERO;
-          charityDonation.charity = charity.id;
-          charityDonation.transfersMwc = [];
-        }
-        charityDonation.transfersMwc.push(transferMwc.id);
-        charityDonation.tokensMwc = charityDonation.tokensMwc.plus(amountMwc);
-
-        dailyDonation.charityDonations.push(charityDonation.id);
-
-        charityDonation.save();
-        dailyDonation.save();
-        charity.save();
+      let date = fromUnixToDate(timestamp.toI32());
+      let charityDailyDonationMwcId = date + "-" + to;
+      let charityDailyDonationMwc = CharityDailyDonationMwc.load(charityDailyDonationMwcId);
+      if (charityDailyDonationMwc == null) {
+        charityDailyDonationMwc = new CharityDailyDonationMwc(charityDailyDonationMwcId);
+        charityDailyDonationMwc.tokensMwc = BIG_INT_ZERO;
+        charityDailyDonationMwc.charity = charity.id;
       }
+      charityDailyDonationMwc.tokensMwc = charityDailyDonationMwc.tokensMwc.plus(amountMwc);
+      charityDailyDonationMwc.save();
+
+      let transferMwc = new TransferMwc(id);
+      transferMwc.from = mwDaoMember.id;
+      transferMwc.to = charity.id;
+      transferMwc.tokens = amountMwc;
+      transferMwc.timestamp = timestamp;
+      transferMwc.blockNumber = blockNumber;
+      transferMwc.charityDonation = true;
+      transferMwc.charityDailyDonationMwc = charityDailyDonationMwc.id;
+      transferMwc.save();
     }
   }
 }
@@ -84,15 +63,11 @@ export function handleTokensMinted(event: TokensMinted): void {
 
   let mwDaoMember = MwDaoMember.load(minter);
   if (mwDaoMember != null) {
-    let mintMwc = MintMwc.load(mintMwcId);
-    if (mintMwc == null) {
-      mintMwc = new MintMwc(mintMwcId);
-    }
+    let mintMwc = new MintMwc(mintMwcId);
 
     mintMwc.timestamp = timestamp;
     mintMwc.minter = minter;
-    mintMwc.minted = true;
-    mintMwc.tokensMwc = amountMwc;
+    mintMwc.tokens = amountMwc;
 
     mwDaoMember.mintMwc = mintMwc.id;
     mwDaoMember.tokensMwc = mwDaoMember.tokensMwc.plus(amountMwc);

@@ -60,6 +60,15 @@ export class MwDaoMember extends Entity {
     this.set("tokensMwg", Value.fromBigInt(value));
   }
 
+  get tokensMwc(): BigInt {
+    let value = this.get("tokensMwc");
+    return value.toBigInt();
+  }
+
+  set tokensMwc(value: BigInt) {
+    this.set("tokensMwc", Value.fromBigInt(value));
+  }
+
   get mintMwc(): string | null {
     let value = this.get("mintMwc");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -91,23 +100,6 @@ export class MwDaoMember extends Entity {
       this.unset("transfersMwc");
     } else {
       this.set("transfersMwc", Value.fromStringArray(value as Array<string>));
-    }
-  }
-
-  get tokensMwc(): BigInt | null {
-    let value = this.get("tokensMwc");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set tokensMwc(value: BigInt | null) {
-    if (value === null) {
-      this.unset("tokensMwc");
-    } else {
-      this.set("tokensMwc", Value.fromBigInt(value as BigInt));
     }
   }
 }
@@ -200,13 +192,13 @@ export class TransferMwc extends Entity {
     this.set("to", Value.fromString(value));
   }
 
-  get tokensMwc(): BigInt {
-    let value = this.get("tokensMwc");
+  get tokens(): BigInt {
+    let value = this.get("tokens");
     return value.toBigInt();
   }
 
-  set tokensMwc(value: BigInt) {
-    this.set("tokensMwc", Value.fromBigInt(value));
+  set tokens(value: BigInt) {
+    this.set("tokens", Value.fromBigInt(value));
   }
 
   get timestamp(): BigInt {
@@ -225,6 +217,32 @@ export class TransferMwc extends Entity {
 
   set blockNumber(value: BigInt) {
     this.set("blockNumber", Value.fromBigInt(value));
+  }
+
+  get charityDonation(): boolean {
+    let value = this.get("charityDonation");
+    return value.toBoolean();
+  }
+
+  set charityDonation(value: boolean) {
+    this.set("charityDonation", Value.fromBoolean(value));
+  }
+
+  get charityDailyDonationMwc(): string | null {
+    let value = this.get("charityDailyDonationMwc");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set charityDailyDonationMwc(value: string | null) {
+    if (value === null) {
+      this.unset("charityDailyDonationMwc");
+    } else {
+      this.set("charityDailyDonationMwc", Value.fromString(value as string));
+    }
   }
 }
 
@@ -258,23 +276,6 @@ export class MintMwc extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get timestamp(): BigInt | null {
-    let value = this.get("timestamp");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set timestamp(value: BigInt | null) {
-    if (value === null) {
-      this.unset("timestamp");
-    } else {
-      this.set("timestamp", Value.fromBigInt(value as BigInt));
-    }
-  }
-
   get minter(): string {
     let value = this.get("minter");
     return value.toString();
@@ -284,92 +285,26 @@ export class MintMwc extends Entity {
     this.set("minter", Value.fromString(value));
   }
 
-  get minted(): boolean {
-    let value = this.get("minted");
-    return value.toBoolean();
-  }
-
-  set minted(value: boolean) {
-    this.set("minted", Value.fromBoolean(value));
-  }
-
-  get tokensMwc(): BigInt | null {
-    let value = this.get("tokensMwc");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set tokensMwc(value: BigInt | null) {
-    if (value === null) {
-      this.unset("tokensMwc");
-    } else {
-      this.set("tokensMwc", Value.fromBigInt(value as BigInt));
-    }
-  }
-}
-
-export class DailyDonation extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id !== null, "Cannot save DailyDonation entity without an ID");
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save DailyDonation entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("DailyDonation", id.toString(), this);
-  }
-
-  static load(id: string): DailyDonation | null {
-    return store.get("DailyDonation", id) as DailyDonation | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get transfersMwc(): Array<string | null> {
-    let value = this.get("transfersMwc");
-    return value.toStringArray();
-  }
-
-  set transfersMwc(value: Array<string | null>) {
-    this.set("transfersMwc", Value.fromStringArray(value));
-  }
-
-  get tokensMwc(): BigInt {
-    let value = this.get("tokensMwc");
+  get tokens(): BigInt {
+    let value = this.get("tokens");
     return value.toBigInt();
   }
 
-  set tokensMwc(value: BigInt) {
-    this.set("tokensMwc", Value.fromBigInt(value));
+  set tokens(value: BigInt) {
+    this.set("tokens", Value.fromBigInt(value));
   }
 
-  get charityDonations(): Array<string | null> {
-    let value = this.get("charityDonations");
-    return value.toStringArray();
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
   }
 
-  set charityDonations(value: Array<string | null>) {
-    this.set("charityDonations", Value.fromStringArray(value));
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 }
 
-export class CharityDonation extends Entity {
+export class CharityDailyDonationMwc extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -377,17 +312,23 @@ export class CharityDonation extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save CharityDonation entity without an ID");
+    assert(
+      id !== null,
+      "Cannot save CharityDailyDonationMwc entity without an ID"
+    );
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save CharityDonation entity with non-string ID. " +
+      "Cannot save CharityDailyDonationMwc entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("CharityDonation", id.toString(), this);
+    store.set("CharityDailyDonationMwc", id.toString(), this);
   }
 
-  static load(id: string): CharityDonation | null {
-    return store.get("CharityDonation", id) as CharityDonation | null;
+  static load(id: string): CharityDailyDonationMwc | null {
+    return store.get(
+      "CharityDailyDonationMwc",
+      id
+    ) as CharityDailyDonationMwc | null;
   }
 
   get id(): string {

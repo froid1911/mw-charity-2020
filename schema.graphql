@@ -2,9 +2,9 @@ type MwDaoMember @entity {
   id: ID! # address
   mwDaoId: BigInt!
   tokensMwg: BigInt!
+  tokensMwc: BigInt!
   mintMwc: MintMwc
-  transfersMwc: [TransferMwc!]
-  tokensMwc: BigInt
+  transfersMwc: [TransferMwc!] @derivedFrom(field: "from")
 }
 
 type Charity @entity {
@@ -13,32 +13,26 @@ type Charity @entity {
 }
 
 type TransferMwc @entity {
-  id: ID! # `${timestamp}-${from.id}-${to.id}`
-  from: String! # Transfers of mwc except of mints, i.e. transfers from `address(0)`
-  to: String!
-  tokensMwc: BigInt!
+  id: ID! # `${timestamp}-${txhash}-${from.id}-${to.id}`
+  from: MwDaoMember! # Transfers of mwc except of mints, i.e. transfers from `address(0)`
+  to: Charity!
+  tokens: BigInt!
   timestamp: BigInt!
   blockNumber: BigInt!
+  charityDonation: Boolean
+  charityDailyDonationMwc: CharityDailyDonationMwc
 }
 
 type MintMwc @entity {
-  id: ID! # `${timestamp}-${minter}`
-  timestamp: BigInt
-  minter: String!
-  minted: Boolean!
-  tokensMwc: BigInt
+  id: ID! # `${timestamp}-${minter.id}`
+  minter: MwDaoMember!
+  tokens: BigInt!
+  timestamp: BigInt!
 }
 
-type DailyDonation @entity {
-  id: ID! # `${YYYY-(M)M-(D)D}`
-  transfersMwc: [TransferMwc]!
-  tokensMwc: BigInt!
-  charityDonations: [CharityDonation]!
-}
-
-type CharityDonation @entity {
+type CharityDailyDonationMwc @entity {
   id: ID! # `${YYYY-(M)M-(D)D}-${charity.id}`
   charity: Charity!
-  transfersMwc: [TransferMwc]!
+  transfersMwc: [TransferMwc]! @derivedFrom(field: "charityDailyDonationMwc")
   tokensMwc: BigInt!
 }

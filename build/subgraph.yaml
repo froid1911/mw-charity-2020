@@ -8,18 +8,18 @@ dataSources:
     name: MwdaoCharity2020
     network: mainnet
     source:
-      address: "0xB2607e4AdAa22186431cf77F5f655612b1B89F45"
+      address: "0x8a124095446a21617F8318A9DcBdd3E7E54f073A"
       abi: MwdaoCharity2020
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
+        - MwDaoMember
         - TransferMwc
         - MintMwc
         - Charity
-        - DailyDonation
-        - CharityDonation
+        - CharityDailyDonationMwc
       abis:
         - name: MwdaoCharity2020
           file: MwdaoCharity2020/abis/MwdaoCharity2020.json
@@ -33,7 +33,7 @@ dataSources:
     name: Mwdao
     network: mainnet
     source:
-      address: "0x1C9C662d8d87d689Aa308e5eA4d6972922B92A15"
+      address: "0x539c81E3c2eEA871f3A317a8AB3A015cC24F9f20"
       abi: Mwdao
     mapping:
       kind: ethereum/events
