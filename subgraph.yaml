@@ -8,7 +8,7 @@ dataSources:
     name: MwdaoCharity2020
     network: mainnet
     source:
-      address: "0xA4a3C0A372010d7F257bc68a4Aa8D5D0B0631AEb"
+      address: "0xB2607e4AdAa22186431cf77F5f655612b1B89F45"
       abi: MwdaoCharity2020
     mapping:
       kind: ethereum/events
@@ -33,7 +33,7 @@ dataSources:
     name: Mwdao
     network: mainnet
     source:
-      address: "0xeAc7f01917eDe1Af6B02BcD203cC81BB6783B78C"
+      address: "0x1C9C662d8d87d689Aa308e5eA4d6972922B92A15"
       abi: Mwdao
     mapping:
       kind: ethereum/events

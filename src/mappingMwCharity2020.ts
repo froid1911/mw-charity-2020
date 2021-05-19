@@ -1,8 +1,9 @@
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import { BigInt, Address, log } from '@graphprotocol/graph-ts';
 import { Transfer, TokensMinted } from '../generated/MwdaoCharity2020/MwdaoCharity2020';
 import { TransferMwc, MintMwc, Charity, DailyDonation, CharityDonation, MwDaoMember } from '../generated/schema';
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const BIG_INT_ZERO = BigInt.fromI32(0);
 
 export function handleTransfer(event: Transfer): void {
   // event Transfer(indexed address from, indexed address to, uint256 value)
@@ -20,11 +21,13 @@ export function handleTransfer(event: Transfer): void {
     transferMwc.tokensMwc = amountMwc;
     transferMwc.timestamp = timestamp;
     transferMwc.blockNumber = blockNumber;
+    transferMwc.save();
 
     let mwDaoMember = MwDaoMember.load(from);
     if (mwDaoMember != null) {
       mwDaoMember.transfersMwc.push(transferMwc.id);
       mwDaoMember.tokensMwc = mwDaoMember.tokensMwc.minus(amountMwc);
+      mwDaoMember.save();
 
       let toMwDaoMember = MwDaoMember.load(to);
       if (toMwDaoMember != null) {
@@ -34,28 +37,30 @@ export function handleTransfer(event: Transfer): void {
         let charity = Charity.load(to);
         if (charity == null) {
           charity = new Charity(to);
+          charity.tokensMwc = BIG_INT_ZERO;
         }
         charity.tokensMwc = charity.tokensMwc.plus(amountMwc);
 
-        //let timestampInMs = timestamp.times(BigInt.fromI32(1000));
-        //let date = new Date(timestampInMs.toI32());
-        //let dailyDonationId = date.toISOString().slice(0,10);
-        //let dailyDonationId = new Intl.DateTimeFormat('en-US').format(date)
+        log.debug("fromUnixToDate(timestamp.toI32()): {}", [fromUnixToDate(timestamp.toI32())]);
         let dailyDonationId = fromUnixToDate(timestamp.toI32());
         let dailyDonation = DailyDonation.load(dailyDonationId);
         if (dailyDonation == null) {
           dailyDonation = new DailyDonation(dailyDonationId);
+          dailyDonation.tokensMwc = BIG_INT_ZERO;
+          dailyDonation.transfersMwc = [];
+          dailyDonation.charityDonations = [];
         }
         dailyDonation.transfersMwc.push(transferMwc.id);
         dailyDonation.tokensMwc = dailyDonation.tokensMwc.plus(amountMwc);
 
-        //let charityDonationId = date.toISOString().slice(0,10) + "-" + charity.id.toString();
         let charityDonationId = dailyDonationId + "-" + charity.id;
         let charityDonation = CharityDonation.load(charityDonationId);
         if (charityDonation == null) {
           charityDonation = new CharityDonation(charityDonationId);
+          charityDonation.tokensMwc = BIG_INT_ZERO;
+          charityDonation.charity = charity.id;
+          charityDonation.transfersMwc = [];
         }
-        charityDonation.charity = charity.id;
         charityDonation.transfersMwc.push(transferMwc.id);
         charityDonation.tokensMwc = charityDonation.tokensMwc.plus(amountMwc);
 
@@ -65,11 +70,7 @@ export function handleTransfer(event: Transfer): void {
         dailyDonation.save();
         charity.save();
       }
-
-      mwDaoMember.save();
     }
-
-    transferMwc.save();
   }
 }
 
@@ -151,24 +152,33 @@ function fromUnixToDate(timestampInSeconds : number) : string {
   let min = sec / 60;
   sec %= 60;
 
-  let mday : number;
-  let month : number;
+  let mday = 1.0;
+  let month = 1;
   if (leap) {
-    for (mday = month = 1; month < 13; month++) {
+    for (;month < 13; month++) {
       if (yday < daysSinceJan1stLeapYear[month]) {
         mday += yday - daysSinceJan1stLeapYear[month - 1];
         break;
       }
     }
   } else {
-    for (mday = month = 1; month < 13; month++) {
+    for (;month < 13; month++) {
       if (yday < daysSinceJan1stNonLeapYear[month]) {
         mday += yday - daysSinceJan1stNonLeapYear[month - 1];
         break;
       }
     }
   }
+  
   mday = Math.floor(mday);
+  year = Math.floor(year);
 
-  return year.toString() + "-" + month.toString() + "-" + mday.toString();
+  let mdayString: string;
+  if(mday > 10) {
+    mdayString = mday.toString().slice(0,2);
+  } else {
+    mdayString = mday.toString().slice(0,1);
+  }
+  let yearString = year.toString().slice(0,4);
+  return yearString + "-" + month.toString() + "-" + mdayString;
 }

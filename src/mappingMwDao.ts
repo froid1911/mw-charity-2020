@@ -11,6 +11,7 @@ export function handleMemberAdded(event: MemberAdded): void {
 
   mwDaoMember.mwDaoId = mwDaoId;
   mwDaoMember.tokensMwg = amountMwg;
+  mwDaoMember.transfersMwc = [];
 
   mwDaoMember.save();
 }
